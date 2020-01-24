@@ -6,54 +6,50 @@ const formatTemplate = info => {
   return `${timestamp} ${level}: ${message}`;
 };
 
-let logger;
+const devFormat = winston.format.combine(
+  winston.format.colorize(),
+  winston.format.timestamp({
+    format: 'YYYY-MM-DD HH:mm:ss'
+  }),
+  winston.format.align(),
+  winston.format.printf(formatTemplate)
+);
 
-if (process.env.NODE_ENV != 'production') {
-  logger = winston.createLogger({
-    level: config.logs.level,
-    format: winston.format.combine(
-      winston.format.colorize(),
-      winston.format.timestamp({
-        format: 'YYYY-MM-DD HH:mm:ss'
-      }),
-      winston.format.align(),
-      winston.format.printf(formatTemplate)
-    ),
-    transports: [new winston.transports.Console()]
-  });
-} else {
-  logger = winston.createLogger({
-    level: config.logs.level,
-    format: winston.format.combine(
-      winston.format.timestamp({
-        format: 'YYYY-MM-DD HH:mm:ss'
-      }),
-      winston.format.json(),
-      winston.format.printf(formatTemplate)
-    ),
-    transports: [
-      new winston.transports.File({
-        filename: '../../logs/error.log',
-        level: 'error',
-        handleExceptions: true,
-        maxsize: 5242880, //5MB
-        maxFiles: 5
-      }),
-      new winston.transports.File({
-        filename: '../../logs/all.log',
-        handleExceptions: true,
-        maxsize: 5242880, //5MB
-        maxFiles: 5
-      })
-    ],
-    exitOnError: false
-  });
-}
+const devTransports = [new winston.transports.Console()];
 
-logger.stream = {
-  write: (message: string) => {
-    logger.info(message);
-  }
-};
+const prodFormat = winston.format.combine(
+  winston.format.timestamp({
+    format: 'YYYY-MM-DD HH:mm:ss'
+  }),
+  winston.format.json(),
+  winston.format.printf(formatTemplate)
+);
+
+const prodTransports = [
+  new winston.transports.File({
+    filename: '../../logs/error.log',
+    level: 'error',
+    handleExceptions: true,
+    maxsize: 5242880, // 5MB
+    maxFiles: 5
+  }),
+  new winston.transports.File({
+    filename: '../../logs/all.log',
+    handleExceptions: true,
+    maxsize: 5242880, // 5MB
+    maxFiles: 5
+  })
+];
+
+const format = process.env.NODE_ENV !== 'production' ? devFormat : prodFormat;
+
+const transports = process.env.NODE_ENV !== 'production' ? devTransports : prodTransports;
+
+const logger = winston.createLogger({
+  level: config.logs.level,
+  format,
+  transports,
+  exitOnError: false
+});
 
 export default logger;

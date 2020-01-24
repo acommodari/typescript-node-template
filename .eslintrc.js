@@ -3,7 +3,7 @@ module.exports = {
     es6: true,
     node: true
   },
-  extends: ['airbnb', 'prettier/@typescript-eslint', 'plugin:jest/recommended', 'plugin:prettier/recommended'],
+  extends: ['airbnb-base', 'prettier/@typescript-eslint', 'plugin:jest/recommended', 'plugin:prettier/recommended'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly'
@@ -14,5 +14,9 @@ module.exports = {
     sourceType: 'module'
   },
   plugins: ['@typescript-eslint'],
-  rules: {}
+  rules: {
+    'import/no-unresolved': 'off',
+    'import/extensions': 'off',
+    'no-unused-expressions': 'warn'
+  }
 };

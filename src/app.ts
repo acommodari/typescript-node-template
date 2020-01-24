@@ -8,7 +8,15 @@ import config from './config';
 
 const app = express();
 
-app.use(morgan('combined', { stream: logger.stream }));
+app.use(
+  morgan('combined', {
+    stream: {
+      write: (message: string) => {
+        logger.info(message);
+      }
+    }
+  })
+);
 
 app.use(cors());
 
